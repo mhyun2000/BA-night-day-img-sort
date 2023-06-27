@@ -7,7 +7,7 @@
 import os
 import shutil
 
-# Set the directory you want to start from
+# Set the directory to search in
 rootDir = 'Images'
 nightDir = 'Separated/Night'
 dayDir = 'Separated/Day'
@@ -16,14 +16,25 @@ keyword = '_Night'
 
 def main():
     print("Starting...")
-    os.makedirs(nightDir)
-    os.makedirs(dayDir)
+    if not os.path.exists(nightDir):
+        os.makedirs(nightDir)
+    if not os.path.exists(dayDir):
+        os.makedirs(dayDir)
     for rootdir, _, files in os.walk(rootDir):
+        existingFileCounter = 0
         for file in files:
             if keyword in file:
-                print("Matching file found.")
                 # copy file to new directory using shutil.copy function
-                shutil.copy(os.path.join(rootdir, file), nightDir)
+                try: 
+                    shutil.copy(os.path.join(rootdir, file), nightDir)
+                except shutil.SameFileError:
+                    existingFileCounter += 1
+                    shutil.copy2(os.path.join(rootdir, file), nightDir)
+        # print the number of files that already existed if any
+        if existingFileCounter > 0:
+            print(str(existingFileCounter) + " files with the same name have been overwritten." )
+
+
 
 main()
 
